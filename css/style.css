@@ -1,11 +1,11 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Fira Code', monospace;
     margin: 0;
     padding: 0;
-    background-color: #f0f2f5;
+    background-color: #cacaca;
 }
 header {
-    background-color: #4CAF50;
+    background-color: #af4c4c;
     color: white;
     text-align: center;
     padding: 1rem 0;
