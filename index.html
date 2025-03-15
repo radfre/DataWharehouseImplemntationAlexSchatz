@@ -25,8 +25,7 @@
     <div class="container">
         <h2>Data Sources</h2>
 
-        <p>ta is sourced from Kaggle and consists of data from Netflix, Amazon Prime, Disney+, Hulu, IMDB, and
-            Movies.</p>
+        <p></p>
 
         <li><a href="https://www.kaggle.com/datasets/shivamb/netflix-shows/code" target="_blank">Netflix Shows
                 Dataset</a></li>
@@ -42,6 +41,79 @@
 
 
     </div>
+    <div class="container">
+        <h2> Loading DATA</h2>
+
+        <p>
+            # Select only the required columns for df_amazon
+            df_amazon_with_columns = df_amazon \
+                .with_column("amazon",F.lit(None)) \
+                .with_column("disney", F.lit(None)) \
+                .with_column("hulu", F.lit(None)) \
+                .with_column("netflix", F.lit(None)) \
+                .select("TYPE", "TITLE", "DIRECTOR", "CAST", "COUNTRY", "DATE_ADDED", 
+                        "RELEASE_YEAR", "RATING", "DURATION", "LISTED_IN", "DESCRIPTION")
+            
+            # Select only the required columns for df_disney
+            df_disney_with_columns = df_disney \
+                .with_column("amazon", F.lit(None)) \
+                .with_column("disney", F.lit(None)) \
+                .with_column("hulu", F.lit(None)) \
+                .with_column("netflix", F.lit(None)) \
+                .select("TYPE", "TITLE", "DIRECTOR", "CAST", "COUNTRY", "DATE_ADDED", 
+                        "RELEASE_YEAR", "RATING", "DURATION", "LISTED_IN", "DESCRIPTION")
+            
+            # Select only the required columns for df_hulu
+            df_hulu_with_columns = df_hulu \
+                .with_column("amazon", F.lit(None)) \
+                .with_column("disney", F.lit(None)) \
+                .with_column("hulu",F.lit(None)) \
+                .with_column("netflix", F.lit(None)) \
+                .select("TYPE", "TITLE", "DIRECTOR", "CAST", "COUNTRY", "DATE_ADDED", 
+                        "RELEASE_YEAR", "RATING", "DURATION", "LISTED_IN", "DESCRIPTION")
+            
+            # Select only the required columns for df_netflix
+            df_netflix_with_columns = df_netflix \
+                .with_column("amazon", F.lit(None)) \
+                .with_column("disney", F.lit(None)) \
+                .with_column("hulu", F.lit(None)) \
+                .with_column("netflix", F.lit(None)) \
+                .select("TYPE", "TITLE", "DIRECTOR", "CAST", "COUNTRY", "DATE_ADDED", 
+                        "RELEASE_YEAR", "RATING", "DURATION", "LISTED_IN", "DESCRIPTION")
+            
+            
+            # Union all the DataFrames into df_streaming with the required columns
+            df_streaming = df_amazon_with_columns \
+                .union(df_disney_with_columns) \
+                .union(df_hulu_with_columns) \
+                .union(df_netflix_with_columns)
+            
+            # drop duplicate titles
+            df_streaming = df_streaming.groupBy("TITLE").agg(
+                F.coalesce(F.max("TYPE"), F.lit(None)).alias("TYPE"),
+                F.coalesce(F.max("DIRECTOR"), F.lit(None)).alias("DIRECTOR"),
+                F.coalesce(F.max("CAST"), F.lit(None)).alias("CAST"),
+                F.coalesce(F.max("COUNTRY"), F.lit(None)).alias("COUNTRY"),
+                F.coalesce(F.max("DATE_ADDED"), F.lit(None)).alias("DATE_ADDED"),
+                F.coalesce(F.max("RELEASE_YEAR"), F.lit(None)).alias("RELEASE_YEAR"),
+                F.coalesce(F.max("RATING"), F.lit(None)).alias("RATING"),
+                F.coalesce(F.max("DURATION"), F.lit(None)).alias("DURATION"),
+                F.coalesce(F.max("LISTED_IN"), F.lit(None)).alias("LISTED_IN"),
+                F.coalesce(F.max("DESCRIPTION"), F.lit(None)).alias("DESCRIPTION")
+            )
+            
+            # Add primary key (row number)
+            df_streaming = df_streaming.with_column("streaming_key", F.row_number().over(Window.order_by(F.lit(1))))
+            
+            # Save to table (assuming Snowflake environment is set up)
+            df_streaming.write \
+                .mode("overwrite") \
+                .save_as_table("STREAMING_MOVIES_TV")
+            
+            df_streaming.show()</p>
+
+    </div>
+
     <div class="container">
         <h2> ETL Implementation</h2>
 
