@@ -16,8 +16,7 @@
     <div class="container">
         <h2>Project Overview</h2>
 
-        <p>This project focuses on implementing a data warehouse for a movie streaming service. The data warehouse is built using Snowflake, and the ETL processes are executed through Python scripts. The data is sourced from Kaggle, which includes information from popular streaming platforms like Netflix, Amazon Prime, Disney+, Hulu, as well as IMDb ratings and general movie data.</p>
-
+        <p>In this project we will make a data whare house around Streaming service movies and shows and thier reveiws critical reviews and performance</p>
     </div>
     <div class="container">
         <h2>Data Sources</h2>
@@ -27,8 +26,91 @@
             <li><a href="https://www.kaggle.com/datasets/shivamb/amazon-prime-movies-and-tv-shows" target="_blank">Amazon Prime Dataset</a></li>
             <li><a href="https://www.kaggle.com/datasets/shivamb/disney-movies-and-tv-shows" target="_blank">Disney+ Dataset</a></li>
             <li><a href="https://www.kaggle.com/datasets/shivamb/hulu-movies-and-tv-shows" target="_blank">Hulu Dataset</a></li>
+            <li><a href="https://www.kaggle.com/datasets/shivamb/streaming-service-movies-and-shows" target="_blank">Amazon, Disney, Hulu, NetflixStreaming Service Movies and Shows Dataset</a></li>
+            <pre>
+                <code>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+|"SHOW_ID"  |"TYPE"  |"TITLE"                         |"DIRECTOR"  |"CAST"  |"COUNTRY"  |"DATE_ADDED"      |"RELEASE_YEAR"  |"RATING"  |"DURATION"  |"LISTED_IN"             |"DESCRIPTION"                                       |  
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+|s1         |Movie   |Ricky Velez: Here's Everything  |NULL        |NULL    |NULL       |October 24, 2021  |2021            |TV-MA     |NULL        |Comedy, Stand Up        |​Comedian Ricky Velez bares it all with his hon...  |  
+|s2         |Movie   |Silent Night                    |NULL        |NULL    |NULL       |October 23, 2021  |2020            |NULL      |94 min      |Crime, Drama, Thriller  |Mark, a low end South London hitman recently re...  |  
+|s3         |Movie   |The Marksman                    |NULL        |NULL    |NULL       |October 23, 2021  |2021            |PG-13     |108 min     |Action, Thriller        |A hardened Arizona rancher tries to protect an ...  |  
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+                </code>
+            </pre>
+            <p>This dataset contains information about movies and shows available on various streaming services. The columns include:</p>
+            <ul>
+                <li><strong>SHOW_ID:</strong> Unique identifier for each show or movie.</li>
+                <li><strong>TYPE:</strong> Indicates whether the entry is a movie or a TV show.</li>
+                <li><strong>TITLE:</strong> The title of the movie or show.</li>
+                <li><strong>DIRECTOR:</strong> The director of the movie or show.</li>
+                <li><strong>CAST:</strong> The main cast of the movie or show.</li>
+                <li><strong>COUNTRY:</strong> The country where the movie or show was produced.</li>
+                <li><strong>DATE_ADDED:</strong> The date the movie or show was added to the streaming service.</li>
+                <li><strong>RELEASE_YEAR:</strong> The year the movie or show was released.</li>
+                <li><strong>RATING:</strong> The rating of the movie or show (e.g., PG-13, TV-MA).</li>
+                <li><strong>DURATION:</strong> The duration of the movie or show.</li>
+                <li><strong>LISTED_IN:</strong> The genres or categories the movie or show is listed under.</li>
+                <li><strong>DESCRIPTION:</strong> A brief description of the movie or show.</li>
+            </ul>
             <li><a href="https://www.kaggle.com/datasets/preetviradiya/imdb-movies-ratings-details" target="_blank">IMDb Ratings Dataset</a></li>
+            <pre>
+                <code>
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+|"IMBD_ID"  |"NAME"                    |"YEAR"  |"RUNTIME"  |"GENRE"       |"RATING"  |"METASCORE"  |"TIMELINE"                                          |"VOTES"    |"GROSS"   |  
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+|0          |The Shawshank Redemption  |1994    |142        |Drama         |9.3       |80           |Two imprisoned men bond over a number of years,...  |2,394,059  |$28.34M   |  
+|1          |The Godfather             |1972    |175        |Crime, Drama  |9.2       |100          |An organized crime dynasty's aging patriarch tr...  |1,658,439  |$134.97M  |  
+|2          |Soorarai Pottru           |2020    |153        |Drama         |9.1       |NULL         |Nedumaaran Rajangam "Maara" sets out to make th...  |78,266     |NULL      |  
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+                </code>
+            </pre>
+            <p>This dataset contains information about IMDb movie ratings. The columns include:</p>
+            <ul>
+                <li><strong>IMBD_ID:</strong> Unique identifier for each movie.</li>
+                <li><strong>NAME:</strong> The name of the movie.</li>
+                <li><strong>YEAR:</strong> The year the movie was released.</li>
+                <li><strong>RUNTIME:</strong> The runtime of the movie in minutes.</li>
+                <li><strong>GENRE:</strong> The genre of the movie.</li>
+                <li><strong>RATING:</strong> The IMDb rating of the movie.</li>
+                <li><strong>METASCORE:</strong> The Metascore of the movie.</li>
+                <li><strong>TIMELINE:</strong> A brief description of the movie's plot.</li>
+                <li><strong>VOTES:</strong> The number of votes the movie received on IMDb.</li>
+                <li><strong>GROSS:</strong> The gross earnings of the movie.</li>
+            </ul>
             <li><a href="https://www.kaggle.com/datasets/danielgrijalvas/movies" target="_blank">Movies Dataset</a></li>
+            <pre>
+                <code>
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+|"NAME"                                          |"RATING"  |"GENRE"    |"YEAR"  |"RELEASED"                     |"SCORE"  |"VOTES"    |"DIRECTOR"       |"WRITER"                 |"STAR"          |"COUNTRY"       |"BUDGET"    |"GROSS"      |"COMPANY"          |"RUNTIME"  |  
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+|The Shining                                     |R         |Drama      |1980    |June 13, 1980 (United States)  |8.4      |927000.0   |Stanley Kubrick  |Stephen King             |Jack Nicholson  |United Kingdom  |19000000.0  |46998772.0   |Warner Bros.       |146.0      |  
+|The Blue Lagoon                                 |R         |Adventure  |1980    |July 2, 1980 (United States)   |5.8      |65000.0    |Randal Kleiser   |Henry De Vere Stacpoole  |Brooke Shields  |United States   |4500000.0   |58853106.0   |Columbia Pictures  |104.0      |  
+|Star Wars: Episode V - The Empire Strikes Back  |PG        |Action     |1980    |June 20, 1980 (United States)  |8.7      |1200000.0  |Irvin Kershner   |Leigh Brackett           |Mark Hamill     |United States   |18000000.0  |538375067.0  |Lucasfilm          |124.0      |  
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+                </code>
+            </pre>
+            <p>This dataset contains information about various movies. The columns include:</p>
+            <ul>
+                <li><strong>NAME:</strong> The name of the movie.</li>
+                <li><strong>RATING:</strong> The rating of the movie (e.g., PG, R).</li>
+                <li><strong>GENRE:</strong> The genre of the movie.</li>
+                <li><strong>YEAR:</strong> The year the movie was released.</li>
+                <li><strong>RELEASED:</strong> The release date of the movie.</li>
+                <li><strong>SCORE:</strong> The score of the movie.</li>
+                <li><strong>VOTES:</strong> The number of votes the movie received.</li>
+                <li><strong>DIRECTOR:</strong> The director of the movie.</li>
+                <li><strong>WRITER:</strong> The writer of the movie.</li>
+                <li><strong>STAR:</strong> The main star of the movie.</li>
+                <li><strong>COUNTRY:</strong> The country where the movie was produced.</li>
+                <li><strong>BUDGET:</strong> The budget of the movie.</li>
+                <li><strong>GROSS:</strong> The gross earnings of the movie.</li>
+                <li><strong>COMPANY:</strong> The production company of the movie.</li>
+                <li><strong>RUNTIME:</strong> The runtime of the movie in minutes.</li>
+            </ul>
         </ul>
 
     </div>
