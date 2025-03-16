@@ -5,131 +5,153 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data-warehouse Project 3</title>
+    <title>Data Warehouse Project 3</title>
     <link rel="stylesheet" href="./css/style.css">
 </head>
 
 <body>
     <header>
-        <h1>Data Warehouse Implementation Project ITMD 536 </h1>
+        <h1>Data Warehouse Implementation Project ITMD 536</h1>
     </header>
     <div class="container">
-        <h2> About</h2>
+        <h2>Project Overview</h2>
 
-        <p>This project is a data warehouse implementation of a movie streaming service.
-            The data warehouse is implemented inside of Snowflake and the ETL process is done with Python scripts.
-            The data is sourced from Kaggle and consists of data from Netflix, Amazon Prime, Disney+, Hulu, IMDB, and
-            Movies.</p>
+        <p>This project focuses on implementing a data warehouse for a movie streaming service. The data warehouse is built using Snowflake, and the ETL processes are executed through Python scripts. The data is sourced from Kaggle, which includes information from popular streaming platforms like Netflix, Amazon Prime, Disney+, Hulu, as well as IMDb ratings and general movie data.</p>
 
     </div>
     <div class="container">
         <h2>Data Sources</h2>
 
-        <p></p>
-
-        <li><a href="https://www.kaggle.com/datasets/shivamb/netflix-shows/code" target="_blank">Netflix Shows
-                Dataset</a></li>
-        <li><a href="https://www.kaggle.com/datasets/shivamb/amazon-prime-movies-and-tv-shows" target="_blank">Amazon
-                Prime Dataset</a></li>
-        <li><a href="https://www.kaggle.com/datasets/shivamb/disney-movies-and-tv-shows" target="_blank">Disney+
-                Dataset</a></li>
-        <li><a href="https://www.kaggle.com/datasets/shivamb/hulu-movies-and-tv-shows" target="_blank">Hulu Dataset</a>
-        </li>
-        <li><a href="https://www.kaggle.com/datasets/preetviradiya/imdb-movies-ratings-details" target="_blank">IMDB
-                Ratings Dataset</a></li>
-        <li><a href="https://www.kaggle.com/datasets/danielgrijalvas/movies" target="_blank">Movies Dataset</a></li>
-
+        <ul>
+            <li><a href="https://www.kaggle.com/datasets/shivamb/netflix-shows/code" target="_blank">Netflix Shows Dataset</a></li>
+            <li><a href="https://www.kaggle.com/datasets/shivamb/amazon-prime-movies-and-tv-shows" target="_blank">Amazon Prime Dataset</a></li>
+            <li><a href="https://www.kaggle.com/datasets/shivamb/disney-movies-and-tv-shows" target="_blank">Disney+ Dataset</a></li>
+            <li><a href="https://www.kaggle.com/datasets/shivamb/hulu-movies-and-tv-shows" target="_blank">Hulu Dataset</a></li>
+            <li><a href="https://www.kaggle.com/datasets/preetviradiya/imdb-movies-ratings-details" target="_blank">IMDb Ratings Dataset</a></li>
+            <li><a href="https://www.kaggle.com/datasets/danielgrijalvas/movies" target="_blank">Movies Dataset</a></li>
+        </ul>
 
     </div>
     <div class="container">
-        <h2> Loading DATA</h2>
+        <h2>Data Loading Process</h2>
 
-        <p>
-            # Select only the required columns for df_amazon
-            df_amazon_with_columns = df_amazon \
-                .with_column("amazon",F.lit(None)) \
-                .with_column("disney", F.lit(None)) \
-                .with_column("hulu", F.lit(None)) \
-                .with_column("netflix", F.lit(None)) \
-                .select("TYPE", "TITLE", "DIRECTOR", "CAST", "COUNTRY", "DATE_ADDED", 
-                        "RELEASE_YEAR", "RATING", "DURATION", "LISTED_IN", "DESCRIPTION")
-            
-            # Select only the required columns for df_disney
-            df_disney_with_columns = df_disney \
-                .with_column("amazon", F.lit(None)) \
-                .with_column("disney", F.lit(None)) \
-                .with_column("hulu", F.lit(None)) \
-                .with_column("netflix", F.lit(None)) \
-                .select("TYPE", "TITLE", "DIRECTOR", "CAST", "COUNTRY", "DATE_ADDED", 
-                        "RELEASE_YEAR", "RATING", "DURATION", "LISTED_IN", "DESCRIPTION")
-            
-            # Select only the required columns for df_hulu
-            df_hulu_with_columns = df_hulu \
-                .with_column("amazon", F.lit(None)) \
-                .with_column("disney", F.lit(None)) \
-                .with_column("hulu",F.lit(None)) \
-                .with_column("netflix", F.lit(None)) \
-                .select("TYPE", "TITLE", "DIRECTOR", "CAST", "COUNTRY", "DATE_ADDED", 
-                        "RELEASE_YEAR", "RATING", "DURATION", "LISTED_IN", "DESCRIPTION")
-            
-            # Select only the required columns for df_netflix
-            df_netflix_with_columns = df_netflix \
-                .with_column("amazon", F.lit(None)) \
-                .with_column("disney", F.lit(None)) \
-                .with_column("hulu", F.lit(None)) \
-                .with_column("netflix", F.lit(None)) \
-                .select("TYPE", "TITLE", "DIRECTOR", "CAST", "COUNTRY", "DATE_ADDED", 
-                        "RELEASE_YEAR", "RATING", "DURATION", "LISTED_IN", "DESCRIPTION")
-            
-            
-            # Union all the DataFrames into df_streaming with the required columns
-            df_streaming = df_amazon_with_columns \
-                .union(df_disney_with_columns) \
-                .union(df_hulu_with_columns) \
-                .union(df_netflix_with_columns)
-            
-            # drop duplicate titles
-            df_streaming = df_streaming.groupBy("TITLE").agg(
-                F.coalesce(F.max("TYPE"), F.lit(None)).alias("TYPE"),
-                F.coalesce(F.max("DIRECTOR"), F.lit(None)).alias("DIRECTOR"),
-                F.coalesce(F.max("CAST"), F.lit(None)).alias("CAST"),
-                F.coalesce(F.max("COUNTRY"), F.lit(None)).alias("COUNTRY"),
-                F.coalesce(F.max("DATE_ADDED"), F.lit(None)).alias("DATE_ADDED"),
-                F.coalesce(F.max("RELEASE_YEAR"), F.lit(None)).alias("RELEASE_YEAR"),
-                F.coalesce(F.max("RATING"), F.lit(None)).alias("RATING"),
-                F.coalesce(F.max("DURATION"), F.lit(None)).alias("DURATION"),
-                F.coalesce(F.max("LISTED_IN"), F.lit(None)).alias("LISTED_IN"),
-                F.coalesce(F.max("DESCRIPTION"), F.lit(None)).alias("DESCRIPTION")
-            )
-            
-            # Add primary key (row number)
-            df_streaming = df_streaming.with_column("streaming_key", F.row_number().over(Window.order_by(F.lit(1))))
-            
-            # Save to table (assuming Snowflake environment is set up)
-            df_streaming.write \
-                .mode("overwrite") \
-                .save_as_table("STREAMING_MOVIES_TV")
-            
-            df_streaming.show()</p>
+        <pre>
+            <code>
+                # Import necessary Python libraries
+                import streamlit as st
+                import pandas as pd
+                import numpy as np
+                import matplotlib.pyplot as plt
+                
+                # Utilize Snowpark for processing data in Snowflake
+                from snowflake.snowpark.context import get_active_session
+                from snowflake.snowpark import functions as F
+                from snowflake.snowpark.window import Window
+                session = get_active_session()
+                
+                # Loading datasets from Snowflake tables
+                df_amazon = session.table("hulu_MOVIES_TV")
+                df_disney = session.table("disney_MOVIES_TV")
+                df_hulu = session.table("HULU_MOVIES_TV")
+                df_netflix = session.table("netflix_MOVIES_TV")
+                df_industry = session.table("INDUSTRY_MOVIES")
+                df_IMDB = session.table("IMDB_MOVIE_REVIEWS")
+                
+                # Selecting necessary columns for each dataset
+                df_amazon_with_columns = df_amazon.select("TYPE", "TITLE", "DIRECTOR", "CAST", "COUNTRY", "RATING", "DATE_ADDED", "RELEASE_YEAR", "DURATION", "LISTED_IN")
+                df_disney_with_columns = df_disney.select("TYPE", "TITLE", "DIRECTOR", "CAST", "COUNTRY", "RATING", "DATE_ADDED", "RELEASE_YEAR", "DURATION", "LISTED_IN")
+                df_hulu_with_columns = df_hulu.select("TYPE", "TITLE", "DIRECTOR", "CAST", "COUNTRY", "RATING", "DATE_ADDED", "RELEASE_YEAR", "DURATION", "LISTED_IN")
+                df_netflix_with_columns = df_netflix.select("TYPE", "TITLE", "DIRECTOR", "CAST", "COUNTRY", "RATING", "DATE_ADDED", "RELEASE_YEAR", "DURATION", "LISTED_IN")
+                
+                # Combining datasets from multiple streaming platforms into one DataFrame
+                df_movie = df_amazon_with_columns.union(df_disney_with_columns).union(df_hulu_with_columns).union(df_netflix_with_columns)
+                
+                # Dropping duplicate titles and consolidating data
+                df_movie = df_movie.groupBy("TITLE").agg(
+                    F.coalesce(F.max("TYPE"), F.lit(None)).alias("TYPE"),
+                    F.coalesce(F.max("DIRECTOR"), F.lit(None)).alias("DIRECTOR"),
+                    F.coalesce(F.max("CAST"), F.lit(None)).alias("CAST"),
+                    F.coalesce(F.max("COUNTRY"), F.lit(None)).alias("COUNTRY"),
+                    F.coalesce(F.max("RATING"), F.lit(None)).alias("RATING"),
+                    F.coalesce(F.max("DATE_ADDED"), F.lit(None)).alias("DATE_ADDED"),
+                    F.coalesce(F.max("RELEASE_YEAR"), F.lit(None)).alias("RELEASE_YEAR"),
+                    F.coalesce(F.max("DURATION"), F.lit(None)).alias("DURATION"),
+                    F.coalesce(F.max("LISTED_IN"), F.lit(None)).alias("LISTED_IN")
+                )
+                
+                # Assigning a unique identifier (primary key) to each movie
+                df_movie = df_movie.withColumn("Movies_key", F.row_number().over(Window.orderBy(F.lit(1))))
+                
+                # Saving the final dataset to a Snowflake table
+                df_movie.write.mode("overwrite").saveAsTable("MOVIES_TV")
+                
+                # Adding streaming platform flags to movies
+                df_amazon_with_rating = df_amazon.select("TITLE").with_column("amazon", F.lit(True))
+                df_disney_with_rating = df_disney.select("TITLE").with_column("disney", F.lit(True))
+                df_hulu_with_rating = df_hulu.select("TITLE").with_column("hulu", F.lit(True))
+                df_netflix_with_rating = df_netflix.select("TITLE").with_column("netflix", F.lit(True))
+                
+                # Joining the streaming platform flags to the movie DataFrame
+                df_movie = df_movie.join(df_amazon_with_rating, on="TITLE", how="left")\
+                                   .join(df_disney_with_rating, on="TITLE", how="left")\
+                                   .join(df_hulu_with_rating, on="TITLE", how="left")\
+                                   .join(df_netflix_with_rating, on="TITLE", how="left")
+                
+                # Saving the updated movie DataFrame to Snowflake
+                df_movie.write.mode("overwrite").save_as_table("MOVIES_TV")
+                
+                # Merging Industry and IMDb data for additional movie information
+                df_industry = df_industry.select(
+                    df_industry["NAME"].alias("TITLE"),
+                    df_industry["SCORE"].alias("INDUSTRY_SCORE"),
+                    df_industry["VOTES"].alias("INDUSTRY_VOTES"),
+                    df_industry["Budget"],
+                    df_industry["GROSS"],
+                    df_industry["COMPANY"]
+                )
+                
+                df_IMDB = df_IMDB.select(
+                    df_IMDB["NAME"].alias("TITLE"),
+                    df_IMDB["IMBD_ID"].alias("IMBD"),
+                    df_IMDB["RATING"].alias("IMBD_RATING"),
+                    df_IMDB["METASCORE"],
+                    df_IMDB["VOTES"].alias("IMBD_VOTES")
+                )
+                
+                # Joining Industry and IMDb data
+                df_INDUSTRY_JOIN = df_industry.join(df_IMDB, on="TITLE", how="left")
+                
+                # Saving the combined data to a Snowflake table
+                df_INDUSTRY_JOIN.write.mode("overwrite").save_as_table("MOVIES_TV_REVIEWS")
+                
+                # Combining movie data with the industry and IMDb data
+                df_streaming = df_movie.join(df_INDUSTRY_JOIN, on="TITLE", how="left")
+                df_streaming.show()
+                
+                # Saving the final streaming data to a Snowflake table
+                df_streaming.write.mode("overwrite").save_as_table("STREAMING_MOVIES_TV")
+                
+            </code>
+        </pre>
 
     </div>
 
     <div class="container">
-        <h2> ETL Implementation</h2>
+        <h2>ETL Implementation</h2>
 
-        <p>This project is</p>
-
-    </div>
-    <div class="container">
-        <h2> Dimension modeling</h2>
-
-        <p>This project is</p>
+        <p>The Extract, Transform, and Load (ETL) process for this project is implemented using Python scripts. The data is first extracted from various Kaggle datasets, transformed by selecting relevant columns and performing necessary transformations (such as removing duplicates), and then loaded into Snowflake for further analysis.</p>
 
     </div>
     <div class="container">
-        <h2> Anylitacl querring</h2>
+        <h2>Dimension Modeling</h2>
 
-        <p>This project is</p>
+        <p>Dimension modeling is an essential part of this project, as it helps organize the data in a way that allows for efficient querying and analysis. In this case, we focus on dimensions related to movies, including attributes like title, director, cast, country, and release year.</p>
+
+    </div>
+    <div class="container">
+        <h2>Analytical Queries</h2>
+
+        <p>This project enables complex analytical queries across various dimensions, such as analyzing movies by streaming platform, year of release, ratings, and more. The structured data in Snowflake allows for fast querying and reporting, helping to derive valuable insights for the streaming industry.</p>
 
     </div>
 </body>
