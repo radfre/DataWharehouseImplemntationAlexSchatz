@@ -16,7 +16,7 @@
     <div class="container">
         <h2>Project Overview</h2>
 
-        <p>In this project we will make a data whare house around Streaming service movies and shows and thier reveiws critical reviews and performance</p>
+        <p>In this project, we will create a data warehouse centered around streaming service movies and shows, along with their reviews, critical reviews, and performance metrics. The project involves extracting data from various sources, transforming it to ensure consistency and accuracy, and loading it into Snowflake for further analysis. We will implement ETL processes, data normalization, and dimension modeling to facilitate efficient querying and reporting. The dimensions will include attributes such as title, director, cast, country, release year, genre, and performance metrics. This structured approach will enable complex analytical queries to derive valuable insights for the streaming industry.</p>
     </div>
     <div class="container">
         <h2>Data Sources</h2>
@@ -233,6 +233,57 @@ df_streaming.write.mode("overwrite").save_as_table("STREAMING_MOVIES_TV")
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             </code>
         </pre>
+        <h2>Fill in missing values, fix date</h2>
+        <pre>
+            <code>
+
+# fix date collum to proper format
+df_streaming_filled = df_streaming.with_column(
+    "DATE_ADDED",
+     F.to_char(F.to_date("DATE_ADDED", "MON DD, YYYY"), "MM/DD/YYYY")
+)
+# fill in date added
+df_streaming_filled = df_streaming.with_column(
+    "DATE_ADDED",
+    F.concat(F.lit("01/01/"), F.col("RELEASE_YEAR").cast("string"))
+)
+
+df_streaming_filled = df_streaming_filled.with_column(
+    "RATING", F.coalesce(F.col("RATING"), F.lit("TV-PG"))
+)
+
+df_streaming_filled = df_streaming_filled.with_column(
+    "COUNTRY", F.coalesce(F.col("COUNTRY"), F.lit("United States"))
+)
+
+# Remove "min" and keep the numeric value
+df_streaming_filled = df_streaming_filled.with_column(
+    "DURATION",
+    F.regexp_replace(F.col("DURATION"), r"\s*min", "")
+)
+
+# Remove "season" and keep the numeric value
+df_streaming_filled = df_streaming_filled.with_column(
+    "DURATION",
+    F.regexp_replace(F.col("DURATION"), r"\s*Season\s*s*", "00")
+)
+
+# Replace NULL values in the "DURATION" column with "90 min"
+df_streaming_filled = df_streaming_filled.with_column(
+    "DURATION",
+    F.coalesce(F.col("DURATION"), F.lit("90"))
+)
+
+# Convert the DURATION column to numeric format, keeping the "min" part, so it's consistent.
+df_streaming_filled = df_streaming_filled.with_column(
+    "DURATION",
+    F.concat(F.col("DURATION"))
+)
+
+            </code>
+        </pre>
+        <h2>Output</h2>
+
     </div>
 
     <div class="container">
