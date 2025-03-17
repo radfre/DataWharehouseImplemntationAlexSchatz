@@ -37,3 +37,10 @@ pre {
     border-radius: 5px; /* Optional: rounds the corners */
     border: 1px solid #ccc; /* Optional: adds a border around the code block */
 }
+
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}

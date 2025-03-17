@@ -581,10 +581,137 @@ WHERE DD.year_value IS NOT NULL;
     </div>
     <div class="container">
         <h2>Analytical Queries</h2>
+        <h3>Gross per fiscal quarter</h3>
+        <pre>
+            <code>
+                from snowflake.snowpark.functions import col, avg
+import matplotlib.pyplot as plt
+
+# Aggregating the average gross by fiscal quarter
+df_avg_gross_by_quarter = (df_dim_dates
+                           .join(df_dim_performance, df_dim_dates.date_key == df_dim_performance.PERFORMANCE_KEY)
+                           .group_by(df_dim_dates.quarter_fiscal)
+                           .agg(avg(df_dim_performance.GROSS).alias("avg_gross"))
+                           .sort(col("quarter_fiscal"))
+)
+
+# Collecting the results into a Pandas DataFrame
+gross_data = df_avg_gross_by_quarter.to_pandas()
+
+# Plotting the bar chart with the correct column names
+plt.figure(figsize=(8, 6))
+plt.bar(gross_data['QUARTER_FISCAL'], gross_data['AVG_GROSS'], color='skyblue')
+plt.xlabel('Fiscal Quarter')
+plt.ylabel('Average Gross')
+plt.title('Average Gross by Fiscal Quarter')
+plt.xticks(gross_data['QUARTER_FISCAL'])
+plt.show()
+            </code>
+        </pre>
+        <img src="images/GROSSFISCAL.png" alt="Gross per fiscal quarter">
+
+        <h3>avereage gorss per year</h3>
+        <pre>
+            <code>
+from snowflake.snowpark.functions import col, avg
+import matplotlib.pyplot as plt
+
+# Aggregating the average gross by fiscal quarter
+df_avg_gross_by_quarter = (df_dim_dates
+                           .join(df_dim_performance, df_dim_dates.date_key == df_dim_performance.PERFORMANCE_KEY)
+                           .group_by(df_dim_dates.year_value)
+                           .agg(avg(df_dim_performance.GROSS).alias("avg_gross"))
+                           .sort(col("year_value"))
+)
+
+# Collecting the results into a Pandas DataFrame
+gross_data = df_avg_gross_by_quarter.to_pandas()
+
+# Plotting the bar chart with the correct column names
+plt.figure(figsize=(8, 6))
+plt.bar(gross_data['YEAR_VALUE'], gross_data['AVG_GROSS'], color='skyblue')
+plt.xlabel('YEAR_VALUE')
+plt.ylabel('Average Gross')
+plt.title('Average Gross by YEAR')
+plt.xticks(gross_data['YEAR_VALUE'])
+plt.show()
+
+            </code>
+        </pre>
+        <img src="images/GROSSYEAR.png" alt="Gross per fiscal quarter">
+
+        <h3>avereage budget per year</h3>
+        <pre>
+            <code>
+from snowflake.snowpark.functions import col, avg
+import matplotlib.pyplot as plt
+
+# Aggregating the average budget by year (instead of fiscal quarter)
+df_avg_budget_by_year = (
+    df_dim_dates
+    .join(df_dim_performance, df_dim_dates.date_key == df_dim_performance.PERFORMANCE_KEY)  # Corrected join
+    .group_by(df_dim_dates.year_value)  # Grouping by year_value
+    .agg(avg(df_dim_performance.BUDGET).alias("avg_BUDGET"))
+    .sort(col("year_value"))
+)
+
+# Collecting the results into a Pandas DataFrame
+budget_data = df_avg_budget_by_year.to_pandas()
+
+# Plotting the bar chart with the correct column names
+plt.figure(figsize=(8, 6))
+plt.bar(budget_data['YEAR_VALUE'], budget_data['AVG_BUDGET'], color='skyblue')
+plt.xlabel('Year')
+plt.ylabel('Average Budget')
+plt.title('Average Budget by Year')
+plt.xticks(budget_data['YEAR_VALUE'], rotation=45)  # Rotating xticks for better visibility
+plt.show()
+
+            </code>
+        </pre>
+        <img src="images/BUDGETYEAR.png" alt="Gross per fiscal quarter">
+
+        <h3>avereage duration per year</h3>
+        <pre>
+            <code>
+from snowflake.snowpark.functions import col, avg
+import matplotlib.pyplot as plt
+
+# Aggregating the average duration by year
+df_avg_duration_by_year = (
+    df_dim_dates
+    .join(df_dim_junk, df_dim_dates.date_key == df_dim_junk.junk_key)  # Join with df_dim_junk for DURATION
+    .group_by(df_dim_dates.year_value)  # Grouping by year_value
+    .agg(avg(df_dim_junk.DURATION).alias("avg_DURATION"))  # Correct column for duration from df_dim_junk
+    .sort(col("year_value"))
+)
+
+# Collecting the results into a Pandas DataFrame
+duration_data = df_avg_duration_by_year.to_pandas()
+
+# Plotting the bar chart with the correct column names
+plt.figure(figsize=(8, 6))
+plt.bar(duration_data['YEAR_VALUE'], duration_data['AVG_DURATION'], color='skyblue')
+plt.xlabel('Year')
+plt.ylabel('Average Duration')
+plt.title('Average Duration by Year')  # Title reflecting "Duration"
+plt.xticks(duration_data['YEAR_VALUE'], rotation=45)  # Rotating xticks for better visibility
+plt.show()
+
+            </code>
+        </pre>
+        <img src="images/DURATIONYEAR.png" alt="Gross per fiscal quarter">
 
         <p>This project enables complex analytical queries across various dimensions, such as analyzing movies by streaming platform, year of release, ratings, and more. The structured data in Snowflake allows for fast querying and reporting, helping to derive valuable insights for the streaming industry.</p>
 
     </div>
+</body>
+<div class="container">
+    <h2>final report</h2>
+
+    <p>This project enables complex analytical queries across various dimensions, such as analyzing movies by streaming platform, year of release, ratings, and more. The structured data in Snowflake allows for fast querying and reporting, helping to derive valuable insights for the streaming industry.</p>
+
+</div>
 </body>
 
 </html>
