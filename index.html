@@ -387,79 +387,117 @@ ADD CONSTRAINT fk_movies_key FOREIGN KEY (MOVIES_KEY) REFERENCES nf_movies_tv_sh
 
     <div class="container">
         <h2>ETL Implementation</h2>
-
-        <p>The Extract, Transform, and Load (ETL) process for this project is implemented using Python scripts. The data is first extracted from various Kaggle datasets, transformed by selecting relevant columns and performing necessary transformations (such as removing duplicates), and then loaded into Snowflake for further analysis.</p>
+        <p>The Extract, Transform, and Load (ETL) process for this project involves several key steps to ensure data is properly structured and optimized for analysis. Initially, data is extracted from various Kaggle datasets and loaded into Snowflake. The data is then transformed by selecting relevant columns, removing duplicates, and filling in missing values. The transformed data is normalized into Fourth Normal Form (4NF) tables to eliminate redundancy and ensure data integrity. Finally, the normalized data is used to create dimension and fact tables, which are essential for building a dimensional model. This model supports efficient querying and reporting, enabling complex analytical queries to derive valuable insights for the streaming industry.</p>
 
         <pre>
             <code>
-CREATE OR REPLACE TABLE nf_movies_tv_shows AS
-SELECT 
-    MOVIES_KEY, 
-    TITLE, 
-    TYPE, 
-    RATING, 
-    DATE_ADDED, 
-    RELEASE_YEAR, 
-    DURATION, 
-    LISTED_IN
-FROM STREAMING_MOVIES_TV;
-ALTER TABLE nf_movies_tv_shows
-ADD PRIMARY KEY (MOVIES_KEY);
+CREATE OR REPLACE TABLE DIM_DATES (
+    date_key INT PRIMARY KEY,
+    year_value INT,
+    month_value INT,
+    day_value INT,
+    quarter_fiscal INT,
+    is_week_day BOOLEAN
+);
+
+CREATE OR REPLACE TABLE DIM_PERFORMANCE (
+    PERFORMANCE_KEY INT PRIMARY KEY,
+    GROSS INT,
+    BUDGET INT,
+    IMBD_NUM INT,
+    METASCORE VARCHAR,
+    VOTES INT
+);
+
+CREATE OR REPLACE TABLE DIM_JUNK (
+    JUNK_KEY INT PRIMARY KEY,
+    LISTED_IN VARCHAR,
+    DURATION INT,
+    CAST VARCHAR,
+    DIRECTOR VARCHAR,
+    RATING VARCHAR,
+    AMAZON VARCHAR,
+    DISNEY VARCHAR,
+    HULU VARCHAR,
+    NETFLIX VARCHAR
+);
+
+CREATE OR REPLACE TABLE FACT_MOVIE_PERFORMANCE (
+    MOVIE_ID INT PRIMARY KEY,
+    MOVIE_TITLE VARCHAR, -- New column for movie title
+    JUNK_KEY INT,
+    PERFORMANCE_KEY INT,
+    DATE_KEY INT,
+    FOREIGN KEY (JUNK_KEY) REFERENCES DIM_JUNK(JUNK_KEY),
+    FOREIGN KEY (PERFORMANCE_KEY) REFERENCES DIM_PERFORMANCE(PERFORMANCE_KEY),
+    FOREIGN KEY (DATE_KEY) REFERENCES DIM_DATES(date_key)
+);
 
 
-CREATE OR REPLACE TABLE nf_cast AS
-SELECT 
-    MOVIES_KEY, 
-    "CAST"
-FROM STREAMING_MOVIES_TV
-WHERE "CAST" IS NOT NULL;
-ALTER TABLE nf_countries
-ADD CONSTRAINT fk_movies_key FOREIGN KEY (MOVIES_KEY) REFERENCES nf_movies_tv_shows(MOVIES_KEY);
 
+-- Inserting data into DIM_DATES with renamed columns
+INSERT INTO DATAWHAREHOUSEPROJECT.PUBLIC.DIM_DATES (date_key, year_value, month_value, day_value, quarter_fiscal, is_week_day)
+SELECT
+    TO_NUMBER(TO_CHAR(TO_DATE(MM.DATE_ADDED, 'MM/DD/YYYY'), 'YYYYMMDD')) AS date_key,
+    EXTRACT(YEAR FROM TO_DATE(MM.DATE_ADDED, 'MM/DD/YYYY')) AS year_value,
+    EXTRACT(MONTH FROM TO_DATE(MM.DATE_ADDED, 'MM/DD/YYYY')) AS month_value, 
+    EXTRACT(DAY FROM TO_DATE(MM.DATE_ADDED, 'MM/DD/YYYY')) AS day_value, 
+    CASE 
+        WHEN EXTRACT(MONTH FROM TO_DATE(MM.DATE_ADDED, 'MM/DD/YYYY')) BETWEEN 1 AND 3 THEN 1
+        WHEN EXTRACT(MONTH FROM TO_DATE(MM.DATE_ADDED, 'MM/DD/YYYY')) BETWEEN 4 AND 6 THEN 2
+        WHEN EXTRACT(MONTH FROM TO_DATE(MM.DATE_ADDED, 'MM/DD/YYYY')) BETWEEN 7 AND 9 THEN 3
+        ELSE 4
+    END AS quarter_fiscal,
+    CASE 
+        WHEN TO_CHAR(TO_DATE(MM.DATE_ADDED, 'MM/DD/YYYY'), 'D') IN ('1', '7') THEN FALSE
+        ELSE TRUE
+    END AS is_week_day
+FROM DATAWHAREHOUSEPROJECT.PUBLIC.NF_MOVIES_TV_SHOWS MM;
 
-CREATE OR REPLACE TABLE nf_countries AS
-SELECT 
-    MOVIES_KEY, 
-    COUNTRY
-FROM STREAMING_MOVIES_TV
-WHERE COUNTRY IS NOT NULL;
-ALTER TABLE nf_countries
-ADD CONSTRAINT fk_movies_key FOREIGN KEY (MOVIES_KEY) REFERENCES nf_movies_tv_shows(MOVIES_KEY);
+-- Inserting data into DIM_PERFORMANCE with handling of commas in numeric values
+INSERT INTO DATAWHAREHOUSEPROJECT.PUBLIC.DIM_PERFORMANCE (PERFORMANCE_KEY, GROSS, BUDGET, IMBD_NUM, METASCORE, VOTES)
+SELECT
+    MM.MOVIES_KEY AS PERFORMANCE_KEY,
+    TO_NUMBER(REPLACE(NI.GROSS, ',', '')) AS GROSS,   
+    TO_NUMBER(REPLACE(NI.BUDGET, ',', '')) AS BUDGET,   
+    TO_NUMBER(REPLACE(NR.IMBD, ',', '')) AS IMBD_NUM,   
+    NR.METASCORE,
+    TO_NUMBER(REPLACE(NR.IMBD_VOTES, ',', '')) AS VOTES  
+FROM DATAWHAREHOUSEPROJECT.PUBLIC.NF_MOVIES_TV_SHOWS MM
+JOIN DATAWHAREHOUSEPROJECT.PUBLIC.NF_INDUSTRY NI ON MM.MOVIES_KEY = NI.MOVIES_KEY
+JOIN DATAWHAREHOUSEPROJECT.PUBLIC.NF_RATINGS NR ON MM.MOVIES_KEY = NR.MOVIES_KEY;
 
+-- Inserting data into DIM_JUNK without DIRECTOR
+INSERT INTO DATAWHAREHOUSEPROJECT.PUBLIC.DIM_JUNK (JUNK_KEY, LISTED_IN, DURATION, CAST, RATING, AMAZON, DISNEY, HULU, NETFLIX)
+SELECT
+    MM.MOVIES_KEY AS JUNK_KEY,  -- Explicitly qualify MOVIES_KEY
+    MM.LISTED_IN,
+    TO_NUMBER(MM.DURATION) AS DURATION,  -- Assuming DURATION should be numeric
+    NC.CAST,
+    MM.RATING,
+    NP.AMAZON,
+    NP.DISNEY,
+    NP.HULU,
+    NP.NETFLIX
+FROM DATAWHAREHOUSEPROJECT.PUBLIC.NF_MOVIES_TV_SHOWS MM
+JOIN DATAWHAREHOUSEPROJECT.PUBLIC.NF_CAST NC ON MM.MOVIES_KEY = NC.MOVIES_KEY
+JOIN DATAWHAREHOUSEPROJECT.PUBLIC.NF_PLATFORMS NP ON MM.MOVIES_KEY = NP.MOVIES_KEY;
 
-CREATE OR REPLACE TABLE nf_platforms AS
-SELECT 
-    MOVIES_KEY, 
-    amazon, 
-    disney, 
-    hulu, 
-    netflix
-FROM STREAMING_MOVIES_TV;
-ALTER TABLE nf_platforms
-ADD CONSTRAINT fk_movies_key FOREIGN KEY (MOVIES_KEY) REFERENCES nf_movies_tv_shows(MOVIES_KEY);
+INSERT INTO DATAWHAREHOUSEPROJECT.PUBLIC.FACT_MOVIE_PERFORMANCE (MOVIE_ID, MOVIE_TITLE, JUNK_KEY, PERFORMANCE_KEY, DATE_KEY)
+SELECT DISTINCT
+    MM.MOVIES_KEY AS MOVIE_ID,  -- Explicitly qualify MOVIES_KEY
+    MM.TITLE AS MOVIE_TITLE,    -- Correctly reference MOVIE_TITLE
+    DJ.JUNK_KEY,
+    DP.PERFORMANCE_KEY,
+    DD.date_key
+FROM DATAWHAREHOUSEPROJECT.PUBLIC.NF_MOVIES_TV_SHOWS MM
+JOIN DATAWHAREHOUSEPROJECT.PUBLIC.DIM_JUNK DJ ON MM.MOVIES_KEY = DJ.JUNK_KEY
+JOIN DATAWHAREHOUSEPROJECT.PUBLIC.DIM_PERFORMANCE DP ON MM.MOVIES_KEY = DP.PERFORMANCE_KEY
+JOIN DATAWHAREHOUSEPROJECT.PUBLIC.DIM_DATES DD 
+    ON EXTRACT(YEAR FROM TO_DATE(MM.RELEASE_YEAR, 'YYYY')) = DD.year_value  -- Match by year
+WHERE DD.year_value IS NOT NULL;
 
-
-CREATE OR REPLACE TABLE nf_ratings AS
-SELECT 
-    MOVIES_KEY, 
-    IMBD, 
-    IMBD_RATING, 
-    METASCORE, 
-    IMBD_VOTES
-FROM STREAMING_MOVIES_TV;
-ALTER TABLE nf_ratings
-ADD CONSTRAINT fk_movies_key FOREIGN KEY (MOVIES_KEY) REFERENCES nf_movies_tv_shows(MOVIES_KEY);
-
-
-CREATE OR REPLACE TABLE nf_industry AS
-SELECT 
-    MOVIES_KEY, 
-    BUDGET, 
-    GROSS, 
-    COMPANY
-FROM STREAMING_MOVIES_TV;
-ALTER TABLE nf_industry
-ADD CONSTRAINT fk_movies_key FOREIGN KEY (MOVIES_KEY) REFERENCES nf_movies_tv_shows(MOVIES_KEY);
+                
             </code>
         </pre>
 
