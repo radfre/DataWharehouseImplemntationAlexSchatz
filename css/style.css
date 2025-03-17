@@ -18,6 +18,21 @@ header {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
 }
+.icontainer {
+    display: flex;
+    gap: 10px; /* Adds space between images */
+    object-fit: contain;
+    
+
+}
+
+.icontainer img {
+    display: block;
+    width: 30%;
+    height: auto;
+
+}
+
 h1 {
     margin: 0;
 }

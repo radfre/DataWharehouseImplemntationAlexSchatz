@@ -16,16 +16,41 @@
     <div class="container">
         <h2>Project Overview</h2>
 
-        <p>In this project, we will create a data warehouse centered around streaming service movies and shows, along with their reviews, critical reviews, and performance metrics. The project involves extracting data from various sources, transforming it to ensure consistency and accuracy, and loading it into Snowflake for further analysis. We will implement ETL processes, data normalization, and dimension modeling to facilitate efficient querying and reporting. The dimensions will include attributes such as title, director, cast, country, release year, genre, and performance metrics. This structured approach will enable complex analytical queries to derive valuable insights for the streaming industry.</p>
+        <p>In this project, we will create a data warehouse centered around streaming service movies and shows, along
+            with their reviews, critical reviews, and performance metrics. The project involves extracting data from
+            various sources, transforming it to ensure consistency and accuracy, and loading it into Snowflake for
+            further analysis. We will implement ETL processes, data normalization, and dimension modeling to facilitate
+            efficient querying and reporting. The dimensions will include attributes such as title, director, cast,
+            country, release year, genre, and performance metrics. This structured approach will enable complex
+            analytical queries to derive valuable insights for the streaming industry.</p>
+    </div>
+    <div class="container">
+        <div class="container">
+            <h2>import data into snowflake</h2>
+            
+            <p>You can load CSVs, JSON files, and more directly into a table in Snowflake. First, go to Databases,
+                select Add Data, upload your CSV, select and name your CSV, and finally confirm the column names.</p>
+
+            <div class="icontainer">
+                <img src="images/import1.png" alt="Gross per fiscal quarter">
+                <img src="images/import2.png" alt="Gross per fiscal quarter">
+                <img src="images/import3.png" alt="Gross per fiscal quarter">
+            </div>
+        </div>
+
     </div>
     <div class="container">
         <h2>Data Sources</h2>
 
         <ul>
-            <li><a href="https://www.kaggle.com/datasets/shivamb/netflix-shows/code" target="_blank">Netflix Shows Dataset</a></li>
-            <li><a href="https://www.kaggle.com/datasets/shivamb/amazon-prime-movies-and-tv-shows" target="_blank">Amazon Prime Dataset</a></li>
-            <li><a href="https://www.kaggle.com/datasets/shivamb/disney-movies-and-tv-shows" target="_blank">Disney+ Dataset</a></li>
-            <li><a href="https://www.kaggle.com/datasets/shivamb/hulu-movies-and-tv-shows" target="_blank">Hulu Dataset</a></li>
+            <li><a href="https://www.kaggle.com/datasets/shivamb/netflix-shows/code" target="_blank">Netflix Shows
+                    Dataset</a></li>
+            <li><a href="https://www.kaggle.com/datasets/shivamb/amazon-prime-movies-and-tv-shows"
+                    target="_blank">Amazon Prime Dataset</a></li>
+            <li><a href="https://www.kaggle.com/datasets/shivamb/disney-movies-and-tv-shows" target="_blank">Disney+
+                    Dataset</a></li>
+            <li><a href="https://www.kaggle.com/datasets/shivamb/hulu-movies-and-tv-shows" target="_blank">Hulu
+                    Dataset</a></li>
             <pre>
                 <code>
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
@@ -38,7 +63,8 @@
 
                 </code>
             </pre>
-            <p>This dataset contains information about movies and shows available on various streaming services. The columns include:</p>
+            <p>This dataset contains information about movies and shows available on various streaming services. The
+                columns include:</p>
             <ul>
                 <li><strong>SHOW_ID:</strong> Unique identifier for each show or movie.</li>
                 <li><strong>TYPE:</strong> Indicates whether the entry is a movie or a TV show.</li>
@@ -53,7 +79,8 @@
                 <li><strong>LISTED_IN:</strong> The genres or categories the movie or show is listed under.</li>
                 <li><strong>DESCRIPTION:</strong> A brief description of the movie or show.</li>
             </ul>
-            <li><a href="https://www.kaggle.com/datasets/preetviradiya/imdb-movies-ratings-details" target="_blank">IMDb Ratings Dataset</a></li>
+            <li><a href="https://www.kaggle.com/datasets/preetviradiya/imdb-movies-ratings-details" target="_blank">IMDb
+                    Ratings Dataset</a></li>
             <pre>
                 <code>
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
@@ -387,7 +414,14 @@ ADD CONSTRAINT fk_movies_key FOREIGN KEY (MOVIES_KEY) REFERENCES nf_movies_tv_sh
 
     <div class="container">
         <h2>ETL Implementation</h2>
-        <p>The Extract, Transform, and Load (ETL) process for this project involves several key steps to ensure data is properly structured and optimized for analysis. Initially, data is extracted from various Kaggle datasets and loaded into Snowflake. The data is then transformed by selecting relevant columns, removing duplicates, and filling in missing values. The transformed data is normalized into Fourth Normal Form (4NF) tables to eliminate redundancy and ensure data integrity. Finally, the normalized data is used to create dimension and fact tables, which are essential for building a dimensional model. This model supports efficient querying and reporting, enabling complex analytical queries to derive valuable insights for the streaming industry.</p>
+        <p>The Extract, Transform, and Load (ETL) process for this project involves several key steps to ensure data is
+            properly structured and optimized for analysis. Initially, data is extracted from various Kaggle datasets
+            and loaded into Snowflake. The data is then transformed by selecting relevant columns, removing duplicates,
+            and filling in missing values. The transformed data is normalized into Fourth Normal Form (4NF) tables to
+            eliminate redundancy and ensure data integrity. Finally, the normalized data is used to create dimension and
+            fact tables, which are essential for building a dimensional model. This model supports efficient querying
+            and reporting, enabling complex analytical queries to derive valuable insights for the streaming industry.
+        </p>
 
         <pre>
             <code>
@@ -577,7 +611,7 @@ WHERE DD.year_value IS NOT NULL;
 ----------------------------------------------------------------------------
             </code>
         </pre>
-        
+
     </div>
     <div class="container">
         <h2>Analytical Queries</h2>
@@ -702,14 +736,19 @@ plt.show()
         </pre>
         <img src="images/DURATIONYEAR.png" alt="Gross per fiscal quarter">
 
-        <p>This project enables complex analytical queries across various dimensions, such as analyzing movies by streaming platform, year of release, ratings, and more. The structured data in Snowflake allows for fast querying and reporting, helping to derive valuable insights for the streaming industry.</p>
+
+        <p>This project enables complex analytical queries across various dimensions, such as analyzing movies by
+            streaming platform, year of release, ratings, and more. The structured data in Snowflake allows for fast
+            querying and reporting, helping to derive valuable insights for the streaming industry.</p>
 
     </div>
 </body>
 <div class="container">
     <h2>final report</h2>
 
-    <p>This project enables complex analytical queries across various dimensions, such as analyzing movies by streaming platform, year of release, ratings, and more. The structured data in Snowflake allows for fast querying and reporting, helping to derive valuable insights for the streaming industry.</p>
+    <p>This project enables complex analytical queries across various dimensions, such as analyzing movies by streaming
+        platform, year of release, ratings, and more. The structured data in Snowflake allows for fast querying and
+        reporting, helping to derive valuable insights for the streaming industry.</p>
 
 </div>
 </body>
